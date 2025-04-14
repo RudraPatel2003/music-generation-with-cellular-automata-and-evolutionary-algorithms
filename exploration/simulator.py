@@ -51,7 +51,7 @@ class CellularAutomataSimulator:
         ax.imshow(self.color_palette[self.board.astype(int)])
         plt.show()
 
-        return self.board
+        return self.board, rule_string
 
     def calculate_my_sum(self, r, c):
         row = self.board[r]
@@ -75,6 +75,21 @@ class CellularAutomataSimulator:
 
 if __name__ == "__main__":
     simulator = CellularAutomataSimulator()
-    board = simulator.simulate()
+
+    boards_and_rule_strings = []
+
+    for _ in range(5):
+        board, rule_string = simulator.simulate()
+        boards_and_rule_strings.append((board, rule_string))
+
+    for board, rule_string in boards_and_rule_strings:
+        print(f"Rule string: {rule_string}")
+        print(board)
+
+    # play music
+
+    # ask for top 2
+
+    # mutate
 
     print(board)
