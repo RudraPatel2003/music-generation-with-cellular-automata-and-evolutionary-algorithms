@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Select Videos</title>
+    <style>
+      video {
+        width: 200px;
+        margin: 10px;
+        display: block;
+      }
+      .video-container {
+        display: inline-block;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Select 2 Videos to Remix</h1>
+    {% with messages = get_flashed_messages() %} {% if messages %}
+    <ul style="color: red">
+      {% for message in messages %}
+      <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %} {% endwith %}
+
+    <form method="post" action="{{ url_for('submit') }}">
+      {% for video in videos %}
+      <div class="video-container">
+        <video controls>
+          <source
+            src="{{ url_for('static', filename='uploads/' ~ video) }}"
+            type="video/mp4"
+          />
+          Your browser does not support the video tag.
+        </video>
+        <label>
+          <input type="checkbox" name="videos" value="{{ video }}" />
+          Select
+        </label>
+      </div>
+      {% endfor %}
+      <br />
+      <input type="submit" value="Submit" />
+    </form>
+  </body>
+</html>
