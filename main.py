@@ -1,11 +1,25 @@
-import threading
+from moviepy import ImageClip, AudioFileClip
 from cellular_automata.cellular_automata import CellularAutomata
 from music_player.music_player import MusicPlayer
 import json
 import argparse
-
+import os
+import shutil
 
 DEFAULT_VALUES = {"width": 15, "steps": 100, "neighbor_size": 2}
+DEFAULT_FILE_NAME = "cellular_automata"
+OUTPUT_DIR = "output"
+
+
+def generate_mp4(mp3_path, png_path, output_path):
+    image = ImageClip(png_path)
+    audio = AudioFileClip(mp3_path)
+
+    image = image.with_duration(audio.duration)
+
+    image = image.with_audio(audio)
+
+    image.write_videofile(output_path, fps=24, codec="libx264")
 
 
 def parse_arguments():
@@ -40,12 +54,6 @@ def parse_arguments():
         type=int,
         default=DEFAULT_VALUES["neighbor_size"],
         help="Number of surrounding cells used to determine the next state",
-    )
-
-    parser.add_argument(
-        "--play_music",
-        action="store_true",
-        help="Play the cellular automata as music",
     )
 
     return parser.parse_args()
@@ -84,20 +92,30 @@ def main():
     )
 
     automata.run_simulation()
+    png_path = automata.generate_plot_png()
 
-    if args.play_music:
-        music_player = MusicPlayer(automata)
-        music_player.play()
+    music_player = MusicPlayer(automata)
+    mp3_path = music_player.export_as_mp3()
 
-        thread = threading.Thread(target=music_player.play)
-        thread.start()
+    json_path = (
+        args.output_file
+        if args.output_file is not None
+        else os.path.join(OUTPUT_DIR, f"{DEFAULT_FILE_NAME}.json")
+    )
+    automata.export_as_json(json_path)
 
-    automata.plot()
-
-    if args.output_file:
-        with open(args.output_file, "w") as file:
-            json.dump(automata.as_dict(), file)
+    mp4_path = (
+        args.output_file
+        if args.output_file is not None
+        else os.path.join(OUTPUT_DIR, f"{DEFAULT_FILE_NAME}.mp4")
+    )
+    generate_mp4(mp3_path, png_path, mp4_path)
 
 
 if __name__ == "__main__":
-    main()
+    os.makedirs("temp", exist_ok=True)
+
+    try:
+        main()
+    finally:
+        shutil.rmtree("temp")

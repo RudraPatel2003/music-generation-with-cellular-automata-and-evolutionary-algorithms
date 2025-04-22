@@ -5,6 +5,8 @@ import json
 
 random = np.random.default_rng()
 
+TEMP_GRAPH_PATH = "temp/graph.png"
+
 
 def get_value(array, index):
     length = len(array)
@@ -70,13 +72,16 @@ class CellularAutomata:
 
             self.history[step] = current_state
 
-    def plot(self):
+    def generate_plot_png(self):
         plt.figure(figsize=(10, 6))
-        plt.imshow(self.history, cmap="binary", interpolation="nearest")
+        plt.imshow(self.history.T, cmap="binary", interpolation="nearest")
         plt.title("1D Cellular Automaton")
         plt.xlabel("Cell Index")
         plt.ylabel("Time Step")
-        plt.show()
+
+        plt.savefig(TEMP_GRAPH_PATH)
+
+        return TEMP_GRAPH_PATH
 
     def as_dict(self):
         return {
@@ -86,6 +91,10 @@ class CellularAutomata:
             "neighbor_size": self.neighbor_size,
             "steps": self.steps,
         }
-    
+
     def get_history(self):
         return self.history.tolist()
+
+    def export_as_json(self, json_path):
+        with open(json_path, "w") as file:
+            json.dump(self.as_dict(), file)
