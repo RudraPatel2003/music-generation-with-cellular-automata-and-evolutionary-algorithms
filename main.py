@@ -1,4 +1,3 @@
-from moviepy import ImageClip, AudioFileClip
 from cellular_automata.cellular_automata import CellularAutomata
 from music_player.music_player import MusicPlayer
 import json
@@ -7,20 +6,6 @@ import os
 import shutil
 
 DEFAULT_VALUES = {"width": 15, "steps": 100, "neighbor_size": 2}
-DEFAULT_FILE_NAME = "cellular_automata"
-OUTPUT_DIR = "output"
-
-
-def generate_mp4(mp3_path, png_path, output_path):
-    image = ImageClip(png_path)
-    audio = AudioFileClip(mp3_path)
-
-    image = image.with_duration(audio.duration)
-
-    image = image.with_audio(audio)
-
-    image.write_videofile(output_path, fps=24, codec="libx264")
-
 
 def parse_arguments():
     parser = argparse.ArgumentParser(
@@ -30,11 +15,6 @@ def parse_arguments():
 
     parser.add_argument(
         "--input_file", type=str, help="Path to input json file for reading"
-    )
-    parser.add_argument(
-        "--output_file",
-        type=str,
-        help="Path to output json file for writing (required)",
     )
 
     parser.add_argument(
@@ -92,28 +72,23 @@ def main():
     )
 
     automata.run_simulation()
-    png_path = automata.generate_plot_png()
+    output_dir = automata.get_output_dir()
+
+    os.makedirs(output_dir, exist_ok=True)
+
+    png_path = automata.generate_plot_png(output_dir)
+    json_path = automata.export_as_json(output_dir)
 
     music_player = MusicPlayer(automata)
-    mp3_path = music_player.export_as_mp3()
+    mp3_path = music_player.export_as_mp3(output_dir)
 
-    json_path = (
-        args.output_file
-        if args.output_file is not None
-        else os.path.join(OUTPUT_DIR, f"{DEFAULT_FILE_NAME}.json")
-    )
-    automata.export_as_json(json_path)
-
-    mp4_path = (
-        args.output_file
-        if args.output_file is not None
-        else os.path.join(OUTPUT_DIR, f"{DEFAULT_FILE_NAME}.mp4")
-    )
-    generate_mp4(mp3_path, png_path, mp4_path)
-
+    print(f"graph.png: {png_path}")
+    print(f"Metadata.json: {json_path}")
+    print(f"song.mp3: {mp3_path}")
 
 if __name__ == "__main__":
     os.makedirs("temp", exist_ok=True)
+    os.makedirs("output", exist_ok=True)
 
     try:
         main()

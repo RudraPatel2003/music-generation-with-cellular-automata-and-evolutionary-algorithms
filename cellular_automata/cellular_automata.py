@@ -1,11 +1,10 @@
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 from itertools import product
 import json
 
 random = np.random.default_rng()
-
-TEMP_GRAPH_PATH = "temp/graph.png"
 
 
 def get_value(array, index):
@@ -24,7 +23,7 @@ def generate_rule_string(neighbor_size):
     rule_strings = [
         "".join(bits) for bits in product("01", repeat=(neighbor_size * 2 + 1))
     ]
-    rule_outputs = random.choice([0, 1], size=len(rule_strings), p=[0.7, 0.3]).tolist()
+    rule_outputs = random.choice([0, 1], size=len(rule_strings), p=[0.5, 0.5]).tolist()
 
     return {rule: output for rule, output in zip(rule_strings, rule_outputs)}
 
@@ -53,7 +52,7 @@ class CellularAutomata:
         if initial_state:
             self.initial_state = np.array(initial_state)
         else:
-            self.initial_state = random.choice([0, 1], size=width, p=[0.7, 0.3])
+            self.initial_state = random.choice([0, 1], size=width, p=[0.5, 0.5])
 
     def run_simulation(self):
         self.history[0] = self.initial_state
@@ -72,16 +71,18 @@ class CellularAutomata:
 
             self.history[step] = current_state
 
-    def generate_plot_png(self):
+    def generate_plot_png(self, output_dir):
         plt.figure(figsize=(10, 6))
         plt.imshow(self.history.T, cmap="binary", interpolation="nearest")
         plt.title("1D Cellular Automaton")
         plt.xlabel("Cell Index")
         plt.ylabel("Time Step")
 
-        plt.savefig(TEMP_GRAPH_PATH)
+        output_path = os.path.join(output_dir, "graph.png")
 
-        return TEMP_GRAPH_PATH
+        plt.savefig(output_path)
+
+        return output_path
 
     def as_dict(self):
         return {
@@ -95,6 +96,18 @@ class CellularAutomata:
     def get_history(self):
         return self.history.tolist()
 
-    def export_as_json(self, json_path):
-        with open(json_path, "w") as file:
+    def export_as_json(self, output_dir):
+        output_path = os.path.join(output_dir, "metadata.json")
+
+        with open(output_path, "w") as file:
             json.dump(self.as_dict(), file)
+
+        return output_path
+
+    def get_output_dir(self):
+        rules_string = "".join(str(value) for value in list(self.rules.values()))
+        initial_state_string = "".join(
+            str(state) for state in self.initial_state.tolist()
+        )
+
+        return os.path.join("output", f"{rules_string}_{initial_state_string}")

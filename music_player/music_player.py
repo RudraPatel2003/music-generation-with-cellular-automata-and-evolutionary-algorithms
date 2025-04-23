@@ -1,33 +1,81 @@
-from music21 import stream, chord, scale
+import os
+from music21 import scale, pitch, tempo
+from music21.note import Note
+from music21.stream import Stream
 from cellular_automata.cellular_automata import CellularAutomata
 import subprocess
+from collections import namedtuple
+import numpy as np
 
 SOUNDFONT_PATH = "music_player/soundfont.sf2"
 MIDI_PATH = "temp/midi_file.mid"
 WAV_PATH = "temp/wav_file.wav"
-MP3_PATH = "temp/mp3_file.mp3"
+
+Segment = namedtuple("Segment", ["pitch", "start", "length"])
+
+MAJOR_PENTATONIC_STRINGS = [
+    "C3",
+    "D3",
+    "E3",
+    "G3",
+    "A3",
+    "C4",
+    "D4",
+    "E4",
+    "G4",
+    "A4",
+    "C5",
+    "D5",
+    "E5",
+    "G5",
+    "A5",
+]
+
+
+def create_segments(binary_list, pitch):
+    running_count = 0
+    segments = []
+
+    for i, bit in enumerate(binary_list):
+        if bit == 1:
+            running_count += 1
+        else:
+            if running_count > 0:
+                segments.append(
+                    Segment(
+                        pitch=pitch, start=(i - running_count), length=running_count
+                    )
+                )
+                running_count = 0
+
+    if running_count > 0:
+        segments.append(Segment(pitch=pitch, start=i, length=running_count))
+
+    return segments
 
 
 class MusicPlayer:
     def __init__(self, automata: CellularAutomata):
-        self.history = automata.get_history()
+        self.history = np.array(automata.get_history())
         self.stream = self.generate_stream()
 
     def generate_stream(self):
-        s = stream.Stream()
+        song = Stream()
 
-        pitches = scale.MajorScale("C").getPitches("C3", "C5")
+        song.insert(0, tempo.MetronomeMark(number=180))
 
-        for time_step in self.history:
-            time_step_chord = chord.Chord(
-                [note for note, is_played in zip(pitches, time_step) if is_played]
-            )
-            time_step_chord.duration.quarterLength = 0.5
-            s.append(time_step_chord)
+        pitches = [pitch.Pitch(n) for n in MAJOR_PENTATONIC_STRINGS]
 
-        return s
+        for i, col in enumerate(self.history.T):
+            segments = create_segments(col, pitches[i])
 
-    def export_as_mp3(self):
+            for segment in segments:
+                note = Note(segment.pitch, quarterLength=segment.length)
+                song.insert(segment.start, note)
+
+        return song
+
+    def export_as_mp3(self, output_dir):
         self.stream.write("midi", fp=MIDI_PATH)
 
         subprocess.run(
@@ -46,11 +94,13 @@ class MusicPlayer:
             stderr=subprocess.STDOUT,
         )
 
+        output_path = os.path.join(output_dir, "song.mp3")
+
         subprocess.run(
-            ["ffmpeg", "-y", "-i", WAV_PATH, MP3_PATH],
+            ["ffmpeg", "-y", "-i", WAV_PATH, output_path],
             check=True,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.STDOUT,
         )
 
-        return MP3_PATH
+        return output_path
