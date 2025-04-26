@@ -6,6 +6,8 @@ import json
 
 random = np.random.default_rng()
 
+PROBABILITY = [0.5, 0.5]
+
 
 def get_value(array, index):
     length = len(array)
@@ -23,7 +25,7 @@ def generate_rule_string(neighbor_size):
     rule_strings = [
         "".join(bits) for bits in product("01", repeat=(neighbor_size * 2 + 1))
     ]
-    rule_outputs = random.choice([0, 1], size=len(rule_strings), p=[0.5, 0.5]).tolist()
+    rule_outputs = random.choice([0, 1], size=len(rule_strings), p=PROBABILITY).tolist()
 
     return {rule: output for rule, output in zip(rule_strings, rule_outputs)}
 
@@ -52,7 +54,7 @@ class CellularAutomata:
         if initial_state:
             self.initial_state = np.array(initial_state)
         else:
-            self.initial_state = random.choice([0, 1], size=width, p=[0.5, 0.5])
+            self.initial_state = random.choice([0, 1], size=width, p=PROBABILITY)
 
     def run_simulation(self):
         self.history[0] = self.initial_state

@@ -1,6 +1,7 @@
 import os
 from music21 import scale, pitch, tempo
 from music21.note import Note
+from music21.pitch import Pitch
 from music21.stream import Stream
 from cellular_automata.cellular_automata import CellularAutomata
 import subprocess
@@ -64,10 +65,17 @@ class MusicPlayer:
 
         song.insert(0, tempo.MetronomeMark(number=180))
 
-        pitches = [pitch.Pitch(n) for n in MAJOR_PENTATONIC_STRINGS]
+        pitches = [Pitch(n) for n in MAJOR_PENTATONIC_STRINGS]
+
+        start = (len(self.history.T) - len(MAJOR_PENTATONIC_STRINGS)) // 2
+        end = start + len(MAJOR_PENTATONIC_STRINGS)
 
         for i, col in enumerate(self.history.T):
-            segments = create_segments(col, pitches[i])
+            if i < start or i >= end:
+                continue
+            
+            pitch = pitches[i % len(MAJOR_PENTATONIC_STRINGS)]
+            segments = create_segments(col, pitch)
 
             for segment in segments:
                 note = Note(segment.pitch, quarterLength=segment.length)

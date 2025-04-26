@@ -1,3 +1,4 @@
+import re
 from cellular_automata.cellular_automata import CellularAutomata
 from music_player.music_player import MusicPlayer
 import json
@@ -5,7 +6,7 @@ import argparse
 import os
 import shutil
 
-DEFAULT_VALUES = {"width": 15, "steps": 100, "neighbor_size": 2}
+DEFAULT_VALUES = {"width": 25, "steps": 50, "neighbor_size": 2}
 
 def parse_arguments():
     parser = argparse.ArgumentParser(
@@ -37,6 +38,19 @@ def parse_arguments():
     )
 
     return parser.parse_args()
+
+def get_output_dir():
+    largest_n = -1
+    pattern = re.compile(r"output_(\d+)$")
+
+    for filename in os.listdir("output"):
+        match = pattern.match(filename)
+        if match:
+            n = int(match.group(1))
+            if n > largest_n:
+                largest_n = n
+
+    return os.path.join("output", f"output_{largest_n + 1}")
 
 
 def main():
@@ -72,7 +86,7 @@ def main():
     )
 
     automata.run_simulation()
-    output_dir = automata.get_output_dir()
+    output_dir = get_output_dir() 
 
     os.makedirs(output_dir, exist_ok=True)
 
