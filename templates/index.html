@@ -116,12 +116,12 @@
         margin-top: 20px;
       }
 
-      .button-container input[type="submit"] {
-        margin-right: auto; /* Pushes the submit button to the left */
+      .button-container input[type="button"].clear-btn {
+        margin-right: auto; /* Pushes the clear button to the left */
       }
 
-      .button-container input[type="button"].clear-btn {
-        margin-left: auto; /* Pushes the clear button to the right */
+      .button-container input[type="submit"] {
+        margin-left: auto; /* Pushes the submit button to the right */
       }
     </style>
   </head>
@@ -160,12 +160,12 @@
         {% endfor %}
       </div>
 
-      <!-- Buttons on the same row -->
+      <!-- Buttons on the same row, swapped -->
       <div class="button-container">
-        <input type="submit" value="Submit" />
         <a href="{{ url_for('clear') }}">
-          <input type="button" class="clear-btn" value="Clear Selection" />
+          <input type="button" class="clear-btn" value="Reset" />
         </a>
+        <input type="submit" value="Submit" />
       </div>
     </form>
   </body>
