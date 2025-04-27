@@ -2,7 +2,8 @@ import os
 import shutil
 import json
 
-from flask import Flask, flash, redirect, render_template, request, url_for, session
+from flask import Flask, flash, redirect, render_template, request, url_for
+from evolution.evolution import generate_cellular_automata_with_evolution
 from helpers.helper import (
     NUM_OF_CA,
     UPLOAD_FOLDER,
@@ -25,13 +26,11 @@ def reset_dir():
 
 @app.route("/", methods=["GET"])
 def index():
-    if "visited" not in session:
+    if len(os.listdir(UPLOAD_FOLDER)) == 0: 
         reset_dir()
 
         for _ in range(NUM_OF_CA):
             generate_cellular_automata()
-
-        session["visited"] = True
 
     files = get_cellular_automata_files()
     return render_template("index.html", files=files)
@@ -61,7 +60,7 @@ def submit():
         generate_cellular_automata(data)
 
     for _ in range(3):
-        generate_cellular_automata()
+        generate_cellular_automata_with_evolution(json_data[0], json_data[1])
 
     return redirect(url_for("index"))
 

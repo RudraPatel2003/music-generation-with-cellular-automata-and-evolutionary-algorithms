@@ -77,6 +77,8 @@ class CellularAutomata:
         plt.figure(figsize=(10, 6))
         plt.imshow(self.history.T, cmap="binary_r", interpolation="nearest")
 
+        plt.gca().invert_yaxis()
+
         plt.axhline(y=5 - 0.5, color="red", linestyle="--", linewidth=2)
         plt.axhline(y=20 + 0.5, color="red", linestyle="--", linewidth=2)
 
