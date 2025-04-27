@@ -26,7 +26,7 @@ def reset_dir():
 
 @app.route("/", methods=["GET"])
 def index():
-    if len(os.listdir(UPLOAD_FOLDER)) == 0: 
+    if not os.path.exists(UPLOAD_FOLDER) or len(os.listdir(UPLOAD_FOLDER)) == 0:
         reset_dir()
 
         for _ in range(NUM_OF_CA):
@@ -61,6 +61,12 @@ def submit():
 
     for _ in range(3):
         generate_cellular_automata_with_evolution(json_data[0], json_data[1])
+
+    return redirect(url_for("index"))
+
+@app.route("/clear", methods=["GET"])
+def clear():
+    reset_dir()
 
     return redirect(url_for("index"))
 

@@ -5,9 +5,9 @@
     <title>Select Videos</title>
     <style>
       :root {
-        --ut-orange: #FF8200;
-        --smokey-gray: #4B4B4B;
-        --white: #FFFFFF;
+        --ut-orange: #ff8200;
+        --smokey-gray: #4b4b4b;
+        --white: #ffffff;
       }
 
       body {
@@ -76,7 +76,6 @@
         cursor: pointer;
         font-size: 16px;
         transition: background-color 0.3s ease;
-        margin-top: 20px;
       }
 
       input[type="submit"]:hover {
@@ -93,18 +92,49 @@
         color: red;
         margin-bottom: 5px;
       }
+
+      /* Styling for the Clear Selection button */
+      input[type="button"].clear-btn {
+        background-color: #ccc;
+        color: var(--smokey-gray);
+        padding: 12px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+      }
+
+      input[type="button"].clear-btn:hover {
+        background-color: #b0b0b0;
+      }
+
+      /* Positioning buttons on the same row */
+      .button-container {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+      }
+
+      .button-container input[type="submit"] {
+        margin-right: auto; /* Pushes the submit button to the left */
+      }
+
+      .button-container input[type="button"].clear-btn {
+        margin-left: auto; /* Pushes the clear button to the right */
+      }
     </style>
   </head>
   <body>
     <h1>Select 2 Videos to Remix</h1>
-    {% with messages = get_flashed_messages() %}
+    {% with messages = get_flashed_messages() %} 
     {% if messages %}
     <ul>
       {% for message in messages %}
       <li>{{ message }}</li>
       {% endfor %}
     </ul>
-    {% endif %}
+    {% endif %} 
     {% endwith %}
 
     <form method="post" action="{{ url_for('submit') }}">
@@ -129,7 +159,14 @@
         </div>
         {% endfor %}
       </div>
-      <input type="submit" value="Submit" />
+
+      <!-- Buttons on the same row -->
+      <div class="button-container">
+        <input type="submit" value="Submit" />
+        <a href="{{ url_for('clear') }}">
+          <input type="button" class="clear-btn" value="Clear Selection" />
+        </a>
+      </div>
     </form>
   </body>
 </html>
