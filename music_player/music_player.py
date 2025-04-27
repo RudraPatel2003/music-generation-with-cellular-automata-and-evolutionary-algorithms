@@ -15,21 +15,21 @@ WAV_PATH = "temp/wav_file.wav"
 Segment = namedtuple("Segment", ["pitch", "start", "length"])
 
 MAJOR_PENTATONIC_STRINGS = [
-    "C3",
-    "D3",
-    "E3",
-    "G3",
-    "A3",
-    "C4",
-    "D4",
-    "E4",
-    "G4",
-    "A4",
-    "C5",
-    "D5",
-    "E5",
-    "G5",
-    "A5",
+    "F#3",
+    "G#3",
+    "A#3",
+    "C#3",
+    "D#3",
+    "F#4",
+    "G#4",
+    "A#4",
+    "C#4",
+    "D#4",
+    "F#5",
+    "G#5",
+    "A#5",
+    "C#5",
+    "D#5",
 ]
 
 
@@ -73,7 +73,7 @@ class MusicPlayer:
         for i, col in enumerate(self.history.T):
             if i < start or i >= end:
                 continue
-            
+
             pitch = pitches[i % len(MAJOR_PENTATONIC_STRINGS)]
             segments = create_segments(col, pitch)
 

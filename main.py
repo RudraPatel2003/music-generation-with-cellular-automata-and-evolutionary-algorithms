@@ -1,4 +1,6 @@
 import re
+import subprocess
+import time
 from cellular_automata.cellular_automata import CellularAutomata
 from music_player.music_player import MusicPlayer
 import json
@@ -7,6 +9,7 @@ import os
 import shutil
 
 DEFAULT_VALUES = {"width": 25, "steps": 50, "neighbor_size": 2}
+
 
 def parse_arguments():
     parser = argparse.ArgumentParser(
@@ -37,7 +40,14 @@ def parse_arguments():
         help="Number of surrounding cells used to determine the next state",
     )
 
+    parser.add_argument(
+        "--run",
+        action="store_true",
+        help="Show the png and play mp3 after run",
+    )
+
     return parser.parse_args()
+
 
 def get_output_dir():
     largest_n = -1
@@ -51,6 +61,27 @@ def get_output_dir():
                 largest_n = n
 
     return os.path.join("output", f"output_{largest_n + 1}")
+
+
+def run_and_show_cellular_automata(png_path, mp3_path):
+    with open(os.devnull, 'w') as devnull:
+        image_proc = subprocess.Popen(["feh", png_path], stdout=devnull, stderr=devnull)
+        music_proc = subprocess.Popen(["mpg123", mp3_path], stdout=devnull, stderr=devnull)
+
+    try:
+        while True:
+            retcode = image_proc.poll()
+            if retcode is not None:
+                music_proc.terminate()
+                break
+
+            if music_proc.poll() is not None:
+                break
+
+            time.sleep(0.1)
+    finally:
+        image_proc.terminate()
+        music_proc.terminate()
 
 
 def main():
@@ -86,7 +117,7 @@ def main():
     )
 
     automata.run_simulation()
-    output_dir = get_output_dir() 
+    output_dir = get_output_dir()
 
     os.makedirs(output_dir, exist_ok=True)
 
@@ -99,6 +130,10 @@ def main():
     print(f"graph.png: {png_path}")
     print(f"Metadata.json: {json_path}")
     print(f"song.mp3: {mp3_path}")
+
+    if args.run:
+        run_and_show_cellular_automata(png_path, mp3_path)
+
 
 if __name__ == "__main__":
     os.makedirs("temp", exist_ok=True)

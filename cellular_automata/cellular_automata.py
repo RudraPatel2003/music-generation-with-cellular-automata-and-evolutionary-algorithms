@@ -75,7 +75,11 @@ class CellularAutomata:
 
     def generate_plot_png(self, output_dir):
         plt.figure(figsize=(10, 6))
-        plt.imshow(self.history.T, cmap="binary", interpolation="nearest")
+        plt.imshow(self.history.T, cmap="binary_r", interpolation="nearest")
+
+        plt.axhline(y=5 - 0.5, color='red', linestyle='--', linewidth=2)
+        plt.axhline(y=20 + 0.5, color='red', linestyle='--', linewidth=2)
+
         plt.title("1D Cellular Automaton")
         plt.xlabel("Cell Index")
         plt.ylabel("Time Step")
