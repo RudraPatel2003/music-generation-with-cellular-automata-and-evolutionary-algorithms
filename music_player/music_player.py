@@ -83,7 +83,7 @@ class MusicPlayer:
 
         return song
 
-    def export_as_mp3(self, output_dir):
+    def export_as_mp3(self, output_file_path):
         self.stream.write("midi", fp=MIDI_PATH)
 
         subprocess.run(
@@ -102,13 +102,11 @@ class MusicPlayer:
             stderr=subprocess.STDOUT,
         )
 
-        output_path = os.path.join(output_dir, "song.mp3")
-
         subprocess.run(
-            ["ffmpeg", "-y", "-i", WAV_PATH, output_path],
+            ["ffmpeg", "-y", "-i", WAV_PATH, output_file_path],
             check=True,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.STDOUT,
         )
 
-        return output_path
+        return output_file_path

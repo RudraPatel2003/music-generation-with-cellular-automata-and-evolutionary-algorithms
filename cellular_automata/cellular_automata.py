@@ -73,22 +73,20 @@ class CellularAutomata:
 
             self.history[step] = current_state
 
-    def generate_plot_png(self, output_dir):
+    def generate_plot_png(self, output_file_path):
         plt.figure(figsize=(10, 6))
         plt.imshow(self.history.T, cmap="binary_r", interpolation="nearest")
 
-        plt.axhline(y=5 - 0.5, color='red', linestyle='--', linewidth=2)
-        plt.axhline(y=20 + 0.5, color='red', linestyle='--', linewidth=2)
+        plt.axhline(y=5 - 0.5, color="red", linestyle="--", linewidth=2)
+        plt.axhline(y=20 + 0.5, color="red", linestyle="--", linewidth=2)
 
         plt.title("1D Cellular Automaton")
         plt.xlabel("Cell Index")
         plt.ylabel("Time Step")
 
-        output_path = os.path.join(output_dir, "graph.png")
+        plt.savefig(output_file_path)
 
-        plt.savefig(output_path)
-
-        return output_path
+        return output_file_path
 
     def as_dict(self):
         return {
@@ -102,18 +100,16 @@ class CellularAutomata:
     def get_history(self):
         return self.history.tolist()
 
-    def export_as_json(self, output_dir):
-        output_path = os.path.join(output_dir, "metadata.json")
-
-        with open(output_path, "w") as file:
+    def export_as_json(self, output_file_path):
+        with open(output_file_path, "w") as file:
             json.dump(self.as_dict(), file)
 
-        return output_path
+        return output_file_path
 
-    def get_output_dir(self):
+    def get_output_file_name(self):
         rules_string = "".join(str(value) for value in list(self.rules.values()))
         initial_state_string = "".join(
             str(state) for state in self.initial_state.tolist()
         )
 
-        return os.path.join("output", f"{rules_string}_{initial_state_string}")
+        return f"{rules_string}_{initial_state_string}"

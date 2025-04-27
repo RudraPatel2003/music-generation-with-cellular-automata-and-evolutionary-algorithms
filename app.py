@@ -1,48 +1,67 @@
 import os
+import shutil
+import json
 
-from werkzeug.utils import secure_filename
-
-from flask import Flask, flash, redirect, render_template, request, url_for
-from remixer import remix_videos
+from flask import Flask, flash, redirect, render_template, request, url_for, session
+from helpers.helper import (
+    NUM_OF_CA,
+    UPLOAD_FOLDER,
+    generate_cellular_automata,
+    get_cellular_automata_files,
+    CellularAutomataFiles,
+)
 
 app = Flask(__name__)
 app.secret_key = "123"  # Needed for flashing messages
 
-UPLOAD_FOLDER = "static/uploads"
 
+def reset_dir():
+    shutil.rmtree("static")
 
-def get_video_list():
-    return sorted([f for f in os.listdir(UPLOAD_FOLDER) if f.endswith(".mp3")])
+    os.makedirs("temp", exist_ok=True)
+    os.makedirs("static", exist_ok=True)
+    os.makedirs("static/uploads", exist_ok=True)
 
 
 @app.route("/", methods=["GET"])
 def index():
-    videos = get_video_list()
-    return render_template("index.html", videos=videos)
+    if "visited" not in session:
+        reset_dir()
+
+        for _ in range(NUM_OF_CA):
+            generate_cellular_automata()
+
+        session["visited"] = True
+
+    files = get_cellular_automata_files()
+    return render_template("index.html", files=files)
 
 
 @app.route("/submit", methods=["POST"])
 def submit():
-    selected = request.form.getlist("videos")
+    selected_files = request.form.getlist("videos")
 
-    if len(selected) != 2:
+    if len(selected_files) != 2:
         flash("Please select exactly 2 videos.")
         return redirect(url_for("index"))
 
-    video1_path = os.path.join(UPLOAD_FOLDER, secure_filename(selected[0]))
-    video2_path = os.path.join(UPLOAD_FOLDER, secure_filename(selected[1]))
+    json_data = []
 
-    # Get existing video names
-    video_names = []
-    for f in os.listdir(UPLOAD_FOLDER):
-        video_names.append(f)
+    for files in selected_files:
+        files = eval(files)
 
-    # Generate 5 new remixed videos
-    remix_videos(video1_path, video2_path, UPLOAD_FOLDER)
+        with open(os.path.join(UPLOAD_FOLDER, files.json), "r") as file:
+            data = json.load(file)
 
-    # clear old videos
-    for f in video_names:
-        os.remove(os.path.join(UPLOAD_FOLDER, f))
+        json_data.append(data)
+
+    reset_dir()
+
+    for data in json_data:
+        generate_cellular_automata(data)
+
+    for _ in range(3):
+        generate_cellular_automata()
 
     return redirect(url_for("index"))
 

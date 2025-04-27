@@ -4,44 +4,131 @@
     <meta charset="UTF-8" />
     <title>Select Videos</title>
     <style>
-      video {
-        width: 200px;
-        margin: 10px;
-        display: block;
+      :root {
+        --ut-orange: #FF8200;
+        --smokey-gray: #4B4B4B;
+        --white: #FFFFFF;
       }
-      .video-container {
-        display: inline-block;
-        text-align: center;
+
+      body {
+        font-family: Arial, sans-serif;
+        background-color: var(--white);
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      h1 {
+        color: var(--ut-orange);
+        margin-bottom: 20px;
+      }
+
+      form {
+        background: var(--white);
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        max-width: 1000px;
+        width: 100%;
+      }
+
+      .grid-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+      }
+
+      .cellular-automata-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 15px;
+        border: 1px solid var(--smokey-gray);
+        border-radius: 8px;
+        background-color: #f2f2f2;
+      }
+
+      .cellular-automata-container img {
+        width: 100%;
+        height: auto;
+        border-radius: 5px;
+        margin-bottom: 10px;
+        object-fit: cover;
+      }
+
+      .cellular-automata-container audio {
+        margin-bottom: 10px;
+        width: 100%;
+      }
+
+      input[type="checkbox"] {
+        margin-right: 8px;
+      }
+
+      input[type="submit"] {
+        background-color: var(--ut-orange);
+        color: var(--white);
+        padding: 12px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+        margin-top: 20px;
+      }
+
+      input[type="submit"]:hover {
+        background-color: #e67300;
+      }
+
+      ul {
+        list-style-type: none;
+        padding: 0;
+        margin-bottom: 20px;
+      }
+
+      ul li {
+        color: red;
+        margin-bottom: 5px;
       }
     </style>
   </head>
   <body>
     <h1>Select 2 Videos to Remix</h1>
-    {% with messages = get_flashed_messages() %} {% if messages %}
-    <ul style="color: red">
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul>
       {% for message in messages %}
       <li>{{ message }}</li>
       {% endfor %}
     </ul>
-    {% endif %} {% endwith %}
+    {% endif %}
+    {% endwith %}
 
     <form method="post" action="{{ url_for('submit') }}">
-      {% for video in videos %}
-      <div class="video-container">
-        <video controls>
-          <source
-            src="{{ url_for('static', filename='uploads/' ~ video) }}"
-            type="video/mp4"
+      <div class="grid-container">
+        {% for file in files %}
+        <div class="cellular-automata-container">
+          <img
+            src="{{ url_for('static', filename='uploads/' ~ file.png) }}"
+            alt="CA"
           />
-          Your browser does not support the video tag.
-        </video>
-        <label>
-          <input type="checkbox" name="videos" value="{{ video }}" />
-          Select
-        </label>
+          <audio controls>
+            <source
+              src="{{ url_for('static', filename='uploads/' ~ file.mp3) }}"
+              type="audio/mpeg"
+            />
+            Your browser does not support the audio element.
+          </audio>
+          <label>
+            <input type="checkbox" name="videos" value="{{ file }}" />
+            Select
+          </label>
+        </div>
+        {% endfor %}
       </div>
-      {% endfor %}
-      <br />
       <input type="submit" value="Submit" />
     </form>
   </body>
