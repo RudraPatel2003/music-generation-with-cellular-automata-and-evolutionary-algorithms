@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Select Videos</title>
+    <style>
+      :root {
+        --ut-orange: #ff8200;
+        --smokey-gray: #4b4b4b;
+        --white: #ffffff;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        background-color: var(--white);
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      h1 {
+        color: var(--ut-orange);
+        margin-bottom: 20px;
+      }
+
+      form {
+        background: var(--white);
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        max-width: 1000px;
+        width: 100%;
+      }
+
+      .grid-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+      }
+
+      .cellular-automata-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 15px;
+        border: 1px solid var(--smokey-gray);
+        border-radius: 8px;
+        background-color: #f2f2f2;
+      }
+
+      .cellular-automata-container img {
+        width: 100%;
+        height: auto;
+        border-radius: 5px;
+        margin-bottom: 10px;
+        object-fit: cover;
+      }
+
+      .cellular-automata-container audio {
+        margin-bottom: 10px;
+        width: 100%;
+      }
+
+      input[type="checkbox"] {
+        margin-right: 8px;
+      }
+
+      input[type="submit"] {
+        background-color: var(--ut-orange);
+        color: var(--white);
+        padding: 12px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+      }
+
+      input[type="submit"]:hover {
+        background-color: #e67300;
+      }
+
+      ul {
+        list-style-type: none;
+        padding: 0;
+        margin-bottom: 20px;
+      }
+
+      ul li {
+        color: red;
+        margin-bottom: 5px;
+      }
+
+      /* Styling for the Clear Selection button */
+      input[type="button"].clear-btn {
+        background-color: #ccc;
+        color: var(--smokey-gray);
+        padding: 12px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+      }
+
+      input[type="button"].clear-btn:hover {
+        background-color: #b0b0b0;
+      }
+
+      /* Positioning buttons on the same row */
+      .button-container {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+      }
+
+      .button-container input[type="button"].clear-btn {
+        margin-right: auto; /* Pushes the clear button to the left */
+      }
+
+      .button-container input[type="submit"] {
+        margin-left: auto; /* Pushes the submit button to the right */
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Select 2 Videos to Remix</h1>
+    {% with messages = get_flashed_messages() %} 
+    {% if messages %}
+    <ul>
+      {% for message in messages %}
+      <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %} 
+    {% endwith %}
+
+    <form method="post" action="{{ url_for('submit') }}">
+      <div class="grid-container">
+        {% for file in files %}
+        <div class="cellular-automata-container">
+          <img
+            src="{{ url_for('static', filename='uploads/' ~ file.png) }}"
+            alt="CA"
+          />
+          <audio controls>
+            <source
+              src="{{ url_for('static', filename='uploads/' ~ file.mp3) }}"
+              type="audio/mpeg"
+            />
+            Your browser does not support the audio element.
+          </audio>
+          <label>
+            <input type="checkbox" name="videos" value="{{ file }}" />
+            Select
+          </label>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Buttons on the same row, swapped -->
+      <div class="button-container">
+        <a href="{{ url_for('clear') }}">
+          <input type="button" class="clear-btn" value="Reset" />
+        </a>
+        <input type="submit" value="Submit" />
+      </div>
+    </form>
+  </body>
+</html>

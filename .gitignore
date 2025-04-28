@@ -1,0 +1,7 @@
+*.json
+*.mp4
+__pycache__/
+*temp/
+*.sf2
+output/
+static/
