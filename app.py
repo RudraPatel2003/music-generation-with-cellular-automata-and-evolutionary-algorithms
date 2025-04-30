@@ -10,6 +10,7 @@ from helpers.helper import (
     generate_cellular_automata,
     get_cellular_automata_files,
     CellularAutomataFiles,
+    get_hall_of_fame,
 )
 
 app = Flask(__name__)
@@ -17,12 +18,10 @@ app.secret_key = "123"  # Needed for flashing messages
 
 
 def reset_dir():
-    shutil.rmtree("static")
+    shutil.rmtree("static/uploads")
 
     os.makedirs("temp", exist_ok=True)
-    os.makedirs("static", exist_ok=True)
     os.makedirs("static/uploads", exist_ok=True)
-
 
 @app.route("/", methods=["GET"])
 def index():
@@ -33,7 +32,7 @@ def index():
             generate_cellular_automata()
 
     files = get_cellular_automata_files()
-    return render_template("index.html", files=files)
+    return render_template("index.html", files=files, hall_of_fame=get_hall_of_fame())
 
 
 @app.route("/submit", methods=["POST"])
@@ -63,6 +62,7 @@ def submit():
         generate_cellular_automata_with_evolution(json_data[0], json_data[1])
 
     return redirect(url_for("index"))
+
 
 @app.route("/clear", methods=["GET"])
 def clear():
