@@ -5,6 +5,7 @@ from music_player.music_player import MusicPlayer
 
 
 UPLOAD_FOLDER = "static/uploads"
+HALL_OF_FAME = "static/hall_of_fame"
 DEFAULT_VALUES = {"width": 25, "steps": 50, "neighbor_size": 2}
 NUM_OF_CA = 5
 
@@ -46,6 +47,21 @@ def get_cellular_automata_files():
     videos = []
 
     for file in os.listdir(UPLOAD_FOLDER):
+        if not file.endswith(".mp3"):
+            continue
+
+        mp3_path = file
+        png_path = file.replace(".mp3", ".png")
+        json_path = file.replace(".mp3", ".json")
+
+        videos.append(CellularAutomataFiles(mp3=mp3_path, png=png_path, json=json_path))
+
+    return videos
+
+def get_hall_of_fame():
+    videos = []
+
+    for file in os.listdir(HALL_OF_FAME):
         if not file.endswith(".mp3"):
             continue
 

@@ -1,5 +1,5 @@
-import os
 import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
 from itertools import product
 import json
@@ -8,6 +8,7 @@ random = np.random.default_rng()
 
 PROBABILITY = [0.5, 0.5]
 
+matplotlib.use('Agg')  
 
 def get_value(array, index):
     length = len(array)
@@ -83,8 +84,8 @@ class CellularAutomata:
         plt.axhline(y=20 + 0.5, color="red", linestyle="--", linewidth=2)
 
         plt.title("1D Cellular Automaton")
-        plt.xlabel("Cell Index")
-        plt.ylabel("Time Step")
+        plt.xlabel("Time Step")
+        plt.ylabel("Note")
 
         plt.savefig(output_file_path)
 
